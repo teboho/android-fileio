@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnCreateFile, btnReadFile, btnUpdateFile, btnDeleteFile;
     private EditText etFileName, etFileContent;
     private FloatingActionButton fabListFiles;
+    private FloatingActionButton fabClearInputs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         btnUpdateFile = binding.btnUpdateFile;
         btnDeleteFile = binding.btnDeleteFile;
         fabListFiles = binding.fabListFiles;
+        fabClearInputs = binding.fabClearInputs;
 
         // edit text
         etFileName = binding.etFileName;
@@ -52,9 +56,20 @@ public class MainActivity extends AppCompatActivity {
         btnUpdateFile.setOnClickListener(v -> updateFile());
         btnDeleteFile.setOnClickListener(v -> deleteFile());
         fabListFiles.setOnClickListener(v -> showAllFiles());
+        fabClearInputs.setOnClickListener(v -> {
+            etFileName.setText("");
+            etFileContent.setText("");
+        });
 
         // Show all files in internal storage
         showAllFiles();
+
+        // disappear keyboard when user clicks outside of edit text
+        binding.getRoot().setOnClickListener(v -> hideKeyboard(v));
+    }
+    private void hideKeyboard(View v) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     private void showAllFiles() {
@@ -69,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
 
     // create file
     private void createFile() {
+        if (etFileName.getText().toString().trim().isEmpty()) {
+            etFileName.setError("Please enter a file name");
+            return;
+        }
         // Getting access to the internal file directory
         String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
         try (FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);) {
