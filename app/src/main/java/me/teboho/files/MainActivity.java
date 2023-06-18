@@ -45,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
         btnReadFile.setOnClickListener(v -> readFile());
         btnUpdateFile.setOnClickListener(v -> updateFile());
         btnDeleteFile.setOnClickListener(v -> deleteFile());
+
+        // Show all files in internal storage
+        showAllFiles();
+    }
+
+    private void showAllFiles() {
+        File[] files = getFilesDir().listFiles();
+        for (File file : files) {
+            Log.d(TAG, "showAllFiles: " + file.getName());
+            etFileContent.append(file.getName().concat("\n"));
+        }
     }
 
     // create file
@@ -62,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
     // read file
     private void readFile() {
+        etFileContent.setText("");
         // code
         if (etFileName.getText().toString().trim().isEmpty()) {
             etFileName.setError("Please enter a file name");
@@ -84,6 +96,23 @@ public class MainActivity extends AppCompatActivity {
     // update file
     private void updateFile() {
         // code
+        if (etFileName.getText().toString().trim().isEmpty()) {
+            etFileName.setError("Please enter a file name");
+            return;
+        }
+        if (etFileContent.getText().toString().trim().isEmpty()) {
+            etFileContent.setError("Enter some update data");
+            return;
+        }
+        String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
+        try (FileOutputStream fos = openFileOutput(filename, MODE_APPEND)) {
+            fos.write("\n".getBytes());
+            fos.write(etFileContent.getText().toString().getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     // delete file
