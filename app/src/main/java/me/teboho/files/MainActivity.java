@@ -7,10 +7,14 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -21,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private Button btnCreateFile, btnReadFile, btnUpdateFile, btnDeleteFile;
     private EditText etFileName, etFileContent;
+    private FloatingActionButton fabListFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         btnReadFile = binding.btnReadFile;
         btnUpdateFile = binding.btnUpdateFile;
         btnDeleteFile = binding.btnDeleteFile;
+        fabListFiles = binding.fabListFiles;
 
         // edit text
         etFileName = binding.etFileName;
@@ -45,17 +51,20 @@ public class MainActivity extends AppCompatActivity {
         btnReadFile.setOnClickListener(v -> readFile());
         btnUpdateFile.setOnClickListener(v -> updateFile());
         btnDeleteFile.setOnClickListener(v -> deleteFile());
+        fabListFiles.setOnClickListener(v -> showAllFiles());
 
         // Show all files in internal storage
         showAllFiles();
     }
 
     private void showAllFiles() {
+        etFileContent.setText("");
         File[] files = getFilesDir().listFiles();
         for (File file : files) {
             Log.d(TAG, "showAllFiles: " + file.getName());
             etFileContent.append(file.getName().concat("\n"));
         }
+        showSnackBar("Files listed successfully");
     }
 
     // create file
@@ -64,9 +73,12 @@ public class MainActivity extends AppCompatActivity {
         String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
         try (FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);) {
             fos.write(etFileContent.getText().toString().getBytes());
+            showSnackBar("File created successfully");
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            showSnackBar("File not found");
+            e.printStackTrace();
         } catch (IOException ex) {
+            showSnackBar("Error writing file");
             Log.e(TAG, "Error writing file to internal storage");
         }
     }
@@ -74,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
     // read file
     private void readFile() {
         etFileContent.setText("");
-        // code
         if (etFileName.getText().toString().trim().isEmpty()) {
             etFileName.setError("Please enter a file name");
             return;
@@ -86,16 +97,18 @@ public class MainActivity extends AppCompatActivity {
             while (scanner.hasNext()) {
                 etFileContent.append(scanner.nextLine().concat("\n"));
             }
+            showSnackBar("File read successfully");
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            showSnackBar("File not found");
+            e.printStackTrace();
         } catch (IOException ex) {
-            Log.e(TAG, "Error writing file to internal storage");
+            showSnackBar("Error reading file");
+            Log.e(TAG, "Error reading file from internal storage");
         }
     }
 
     // update file
     private void updateFile() {
-        // code
         if (etFileName.getText().toString().trim().isEmpty()) {
             etFileName.setError("Please enter a file name");
             return;
@@ -108,15 +121,40 @@ public class MainActivity extends AppCompatActivity {
         try (FileOutputStream fos = openFileOutput(filename, MODE_APPEND)) {
             fos.write("\n".getBytes());
             fos.write(etFileContent.getText().toString().getBytes());
+            showSnackBar("File updated successfully");
         } catch (FileNotFoundException e) {
+            showSnackBar("File not found");
             e.printStackTrace();
         } catch (IOException e1) {
+            showSnackBar("Error updating file");
             e1.printStackTrace();
         }
     }
 
     // delete file
     private void deleteFile() {
-        // code
+        if (etFileName.getText().toString().trim().isEmpty()) {
+            etFileName.setError("Please enter a file name");
+            return;
+        }
+        String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
+        File files = getFilesDir();
+        File[] matchingFiles = files.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.equals(filename))
+                    return true;
+                return false;
+            }
+        });
+        File matchingFile = matchingFiles[0];
+        if (matchingFile.exists()) {
+            matchingFile.delete();
+            showSnackBar("File deleted successfully");
+        }
+    }
+
+    private void showSnackBar(String message) {
+        Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_LONG).show();
     }
 }

@@ -54,13 +54,18 @@
     <!-- Mlutiline text input -->
     <EditText
         android:id="@+id/etFileName"
+        style="@style/Widget.Material3.AutoCompleteTextView.FilledBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:background="#7E0099CC"
         android:ems="10"
         android:hint="File name"
         android:inputType="textPersonName"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/black"
+        android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/etFileContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -69,21 +74,38 @@
 
     <EditText
         android:id="@+id/etFileContent"
+        style="@style/Widget.Material3.AutoCompleteTextView.FilledBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="14dp"
         android:layout_marginEnd="8dp"
+        android:background="#7E0099CC"
         android:ems="10"
         android:hint="Enter text content here"
         android:inputType="textMultiLine"
         android:lines="5"
         android:maxLines="5"
         android:minLines="5"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/black"
+        android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etFileName" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabListFiles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:clickable="true"
+        android:tooltipText="list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
