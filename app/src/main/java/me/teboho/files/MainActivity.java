@@ -8,9 +8,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Scanner;
 
 import me.teboho.files.databinding.ActivityMainBinding;
 
@@ -48,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
     // create file
     private void createFile() {
         // Getting access to the internal file directory
-        try (FileOutputStream fos = openFileOutput(etFileName.getText() + ".txt", MODE_PRIVATE);) {
+        String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
+        try (FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);) {
             fos.write(etFileContent.getText().toString().getBytes());
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -60,6 +63,22 @@ public class MainActivity extends AppCompatActivity {
     // read file
     private void readFile() {
         // code
+        if (etFileName.getText().toString().trim().isEmpty()) {
+            etFileName.setError("Please enter a file name");
+            return;
+        }
+        String filename = etFileName.getText().toString().trim().endsWith(".txt") ? etFileName.getText().toString().trim() : etFileName.getText().toString().trim().concat(".txt");
+        try (FileInputStream fis = openFileInput(filename)){
+            Scanner scanner = new Scanner(fis);
+            scanner.useDelimiter("\\Z");
+            while (scanner.hasNext()) {
+                etFileContent.append(scanner.nextLine().concat("\n"));
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            Log.e(TAG, "Error writing file to internal storage");
+        }
     }
 
     // update file
